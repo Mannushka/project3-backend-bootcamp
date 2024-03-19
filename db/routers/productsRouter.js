@@ -8,6 +8,7 @@ class ProductsRouter {
 
   routes() {
     router.get('/', this.controller.getAll.bind(this.controller));
+    router.get('/:productId', this.controller.getOne.bind(this.controller));
 
     return router;
   }
