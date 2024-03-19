@@ -9,6 +9,11 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+
+      // Many-to-1 relationship with user
+      this.belongsTo(models.user);
+
+      // Many-to-Many relationship with products with junction table order_products
       this.belongsToMany(models.product, {
         through: 'order_products',
         timestamps: false,

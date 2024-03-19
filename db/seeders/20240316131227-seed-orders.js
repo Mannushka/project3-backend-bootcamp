@@ -18,12 +18,14 @@ module.exports = {
         delivery_address: 'Plaza Singapura',
         created_at: new Date(),
         updated_at: new Date(),
+        user_id: 2,
       },
       {
         quantity: 3,
         delivery_address: 'Orchard Road',
         created_at: new Date(),
         updated_at: new Date(),
+        user_id: 1,
       },
     ]);
   },
