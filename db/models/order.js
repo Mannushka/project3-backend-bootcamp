@@ -2,11 +2,6 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       // define association here
 
@@ -22,12 +17,22 @@ module.exports = (sequelize, DataTypes) => {
   }
   Order.init(
     {
-      quantity: DataTypes.BIGINT,
+      // quantity: DataTypes.BIGINT,
       delivery_address: DataTypes.STRING,
+      user_id: {
+        type: DataTypes.INTEGER,
+        references: {
+          // Sequelize docs suggest this should be plural table name and not singular model name
+          // https://sequelize.org/api/v6/class/src/model.js~model#static-method-init
+          model: 'users',
+          key: 'id',
+        },
+      },
     },
     {
       sequelize,
       modelName: 'order',
+      timestamps: true,
       underscored: true,
     },
   );
