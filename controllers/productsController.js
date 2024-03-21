@@ -51,17 +51,35 @@ class ProductsController extends BaseController {
     res.send(purchasedProduct);
   }
 
-  // async purchaseOne(req, res) {
-  //   const { productId } = req.params;
+  // Post a new product for sellers
+  async postOne(req, res) {
+    const {
+      title,
+      price,
+      description,
+      shipping_details,
+      stock_left,
+      model_url,
+      img,
+    } = req.body;
 
-  //   const productToBeBought = await this.model.findByPk(productId);
+    try {
+      // Create new product
+      const newProduct = await this.model.create({
+        title: title,
+        price: price,
+        description: description,
+        shipping_details: shipping_details,
+        stock_left: stock_left,
+        model_url: model_url,
+        img: img,
+      });
 
-  //   const {title, price, description}
-
-  //   const purchasedProduct = {
-  //     title: productToBeBought.dataValues
-  //   }
-  // }
+      res.send(newProduct);
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+  }
 }
 
 module.exports = ProductsController;
