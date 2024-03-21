@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -12,17 +12,17 @@ module.exports = {
      *   isBetaMember: false
      * }], {});
      */
-    await queryInterface.bulkInsert('orders', [
+    await queryInterface.bulkInsert("orders", [
       {
         quantity: 1,
-        delivery_address: 'Plaza Singapura',
+        delivery_address: "Plaza Singapura",
         created_at: new Date(),
         updated_at: new Date(),
         user_id: 2,
       },
       {
         quantity: 3,
-        delivery_address: 'Orchard Road',
+        delivery_address: "Orchard Road",
         created_at: new Date(),
         updated_at: new Date(),
         user_id: 1,
@@ -37,6 +37,6 @@ module.exports = {
      * Example:
      * await queryInterface.bulkDelete('People', null, {});
      */
-    await queryInterface.bulkDelete('orders', null, {});
+    await queryInterface.bulkDelete("orders", null, {});
   },
 };
