@@ -7,6 +7,7 @@ class UsersRouter {
   }
   routes() {
     router.post("/", this.controller.postNewUser.bind(this.controller));
+    router.put("/:userId", this.controller.updateUser.bind(this.controller));
     return router;
   }
 }
