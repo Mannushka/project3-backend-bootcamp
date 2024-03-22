@@ -61,6 +61,7 @@ class ProductsController extends BaseController {
       stock_left,
       model_url,
       img,
+      categoryId,
     } = req.body;
 
     try {
@@ -73,6 +74,7 @@ class ProductsController extends BaseController {
         stock_left: stock_left,
         model_url: model_url,
         img: img,
+        categoryId: categoryId,
       });
 
       res.send(newProduct);

@@ -13,6 +13,9 @@ module.exports = (sequelize, DataTypes) => {
         through: 'order_products',
         timestamps: false,
       });
+
+      // Define association with categories here
+      this.belongsTo(models.category);
     }
   }
   Product.init(
