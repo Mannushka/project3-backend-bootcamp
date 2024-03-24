@@ -57,9 +57,9 @@ class ProductsController extends BaseController {
       title,
       price,
       description,
-      shipping_details,
+      // shipping_details,
       stock_left,
-      model_url,
+      // model_url,
       img,
       categoryId,
     } = req.body;
@@ -70,9 +70,9 @@ class ProductsController extends BaseController {
         title: title,
         price: price,
         description: description,
-        shipping_details: shipping_details,
+        // shipping_details: shipping_details,
         stock_left: stock_left,
-        model_url: model_url,
+        // model_url: model_url,
         img: img,
         categoryId: categoryId,
       });
