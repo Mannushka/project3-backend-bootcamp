@@ -34,7 +34,20 @@ const usersRouter = new UsersRouter(usersController).routes();
 const PORT = 3000;
 const app = express();
 
+app.options(
+  '*',
+  cors({
+    origin: 'http://localhost:5173',
+  }),
+);
+
 app.use(cors());
+// app.use(
+//   cors({
+//     origin: 'http://localhost:5173',
+//     credentials: true,
+//   }),
+// );
 app.use(express.json());
 
 // Enable and use router

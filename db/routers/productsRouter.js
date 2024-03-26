@@ -24,6 +24,17 @@ class ProductsRouter {
       '/remainingStripeProducts',
       this.controller.seedRemainingStripeProducts.bind(this.controller),
     );
+
+    router.post(
+      '/create-checkout-session',
+      this.controller.makePayment.bind(this.controller),
+    );
+
+    router.post(
+      '/get-stripe-prices',
+      this.controller.getAllPricesFromStripe.bind(this.controller),
+    );
+
     return router;
   }
 }

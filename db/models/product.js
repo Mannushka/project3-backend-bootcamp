@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
       stock_left: DataTypes.BIGINT,
       // model_url: DataTypes.STRING,
       img: DataTypes.TEXT,
+      stripe_id: DataTypes.STRING,
     },
     {
       sequelize,

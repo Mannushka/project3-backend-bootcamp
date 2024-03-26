@@ -3,6 +3,8 @@ require('dotenv').config();
 
 const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 
+const YOUR_DOMAIN = 'http://localhost:3000';
+
 class ProductsController extends BaseController {
   constructor(model) {
     super(model);
@@ -115,7 +117,7 @@ class ProductsController extends BaseController {
             });
         });
 
-      return res.send('success');
+      return res.send(product);
     } catch (err) {
       return res.status(400).send(err);
     }
@@ -203,6 +205,51 @@ class ProductsController extends BaseController {
       return res.json(output);
     } catch (err) {
       return res.status(400).send(err);
+    }
+  }
+
+  async makePayment(req, res) {
+    const { priceId } = req.body;
+
+    try {
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
+            price: `${priceId}`,
+            quantity: 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `${YOUR_DOMAIN}?success=true`,
+        cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+      });
+
+      // res.redirect(303, session.url);
+
+      // Had to return the session URL as JSON for the front end to redirect to instead of directly redirecting due to CORS issues
+      res.json({ url: session.url });
+    } catch (err) {
+      res.status(500).json({ error: 'Error creaing checkout session' });
+    }
+  }
+
+  async getAllPricesFromStripe(req, res) {
+    try {
+      const prices = await stripe.prices.list();
+      const pricesData = prices.data;
+
+      console.log(prices);
+
+      // Update all the products in db with a new column stripe_price_id
+      const allProducts = await this.model.findAll();
+      const allProductsData = allProducts.map((product) => product.dataValues);
+      // console.log(allProductsData);
+
+      return res.send(pricesData);
+    } catch (err) {
+      console.error(`Error fetching prices: ${err}`);
+      throw err;
     }
   }
 }
