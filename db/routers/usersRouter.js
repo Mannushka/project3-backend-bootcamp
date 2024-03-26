@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
 class UsersRouter {
@@ -6,8 +6,12 @@ class UsersRouter {
     this.controller = controller;
   }
   routes() {
-    router.post("/", this.controller.postNewUser.bind(this.controller));
-    router.put("/:userId", this.controller.updateUser.bind(this.controller));
+    router.post('/', this.controller.postNewUser.bind(this.controller));
+    router.put('/:userId', this.controller.updateUser.bind(this.controller));
+    router.get(
+      '/stripe-customer',
+      this.controller.getStripeCustomerDetails.bind(this.controller),
+    );
     return router;
   }
 }

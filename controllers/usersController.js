@@ -1,4 +1,9 @@
-const BaseController = require("./baseController");
+const BaseController = require('./baseController');
+require('dotenv').config();
+
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
+const YOUR_DOMAIN = 'http://localhost:3000';
+
 class UsersController extends BaseController {
   constructor(model) {
     super(model);
@@ -33,6 +38,23 @@ class UsersController extends BaseController {
       });
 
       res.send(updatedUser);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err.message });
+    }
+  }
+
+  // Not working
+  async getStripeCustomerDetails(req, res) {
+    try {
+      console.log(req);
+      const session = await stripe.checkout.sessions.retrieve(
+        req.query.session_id,
+      );
+
+      const customer = await stripe.customers.retrieve(session.customer);
+
+      console.log(customer);
+      res.send(customer);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err.message });
     }

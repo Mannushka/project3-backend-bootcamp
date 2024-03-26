@@ -221,7 +221,7 @@ class ProductsController extends BaseController {
           },
         ],
         mode: 'payment',
-        success_url: `${YOUR_DOMAIN}?success=true`,
+        success_url: `http://localhost:5173/order/success`,
         cancel_url: `${YOUR_DOMAIN}?canceled=true`,
       });
 
