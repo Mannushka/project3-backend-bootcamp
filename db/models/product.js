@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       // shipping_details: DataTypes.TEXT,
       stock_left: DataTypes.BIGINT,
       // model_url: DataTypes.STRING,
-      img: DataTypes.STRING,
+      img: DataTypes.TEXT,
     },
     {
       sequelize,

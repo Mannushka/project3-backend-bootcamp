@@ -1,4 +1,7 @@
 const BaseController = require('./baseController');
+require('dotenv').config();
+
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 
 class ProductsController extends BaseController {
   constructor(model) {
@@ -78,6 +81,126 @@ class ProductsController extends BaseController {
       });
 
       res.send(newProduct);
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+  }
+
+  async createStripeProduct(req, res) {
+    try {
+      const product = stripe.products
+        .create({
+          name: 'Starter Subscription',
+          description: '$12/Month subscription',
+        })
+        .then((product) => {
+          stripe.prices
+            .create({
+              unit_amount: 1200,
+              currency: 'usd',
+              recurring: {
+                interval: 'month',
+              },
+              product: product.id,
+            })
+            .then((price) => {
+              console.log(
+                'Success! Here is your starter subscription product id: ' +
+                  product.id,
+              );
+              console.log(
+                'Success! Here is your starter subscription price id: ' +
+                  price.id,
+              );
+            });
+        });
+
+      return res.send('success');
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+  }
+
+  async seedRemainingStripeProducts(req, res) {
+    try {
+      const productIds = [15, 26, 30, 32];
+      const products = await this.model.findAll({
+        where: {
+          id: productIds,
+        },
+      });
+
+      const formattedOutput = products.map((product) => product.dataValues);
+      console.log(formattedOutput);
+
+      await Promise.all(
+        formattedOutput.map(async (product) => {
+          const productPrice = product.price;
+          try {
+            const createdProduct = await stripe.products
+              .create({
+                name: product.title,
+                description: product.description,
+              })
+              .then((product) => {
+                stripe.prices.create({
+                  unit_amount: productPrice,
+                  currency: 'sgd',
+                  product: product.id,
+                });
+              })
+              .then((response) => {
+                console.log('Success! Here are the product details:', response);
+              });
+
+            console.log(createdProduct);
+          } catch (err) {
+            console.error(`Error creating product in Stripe`, err);
+          }
+        }),
+      );
+
+      return res.json(products);
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+  }
+
+  async seedStripeProducts(req, res) {
+    try {
+      const output = await this.model.findAll();
+      const formattedOutput = output.map((product) => product.dataValues);
+
+      // Promise.all method for creating all the stripe products
+      await Promise.all(
+        formattedOutput.map(async (product) => {
+          const productPrice = product.price;
+          try {
+            const createdProduct = await stripe.products
+              .create({
+                name: product.title,
+                description: product.description,
+              })
+              .then((product) => {
+                stripe.prices.create({
+                  unit_amount: productPrice,
+                  currency: 'sgd',
+                  product: product.id,
+                });
+              })
+              .then((response) => {
+                console.log('Success! Here are the product details:', response);
+              });
+
+            console.log(createdProduct);
+          } catch (err) {
+            console.error(`Error creating product in Stripe`, err);
+          }
+        }),
+      );
+
+      // console.log(formattedOutput);
+      return res.json(output);
     } catch (err) {
       return res.status(400).send(err);
     }

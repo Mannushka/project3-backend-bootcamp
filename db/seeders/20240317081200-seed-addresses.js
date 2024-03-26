@@ -16,13 +16,13 @@ module.exports = {
       'addresses',
       [
         {
-          buyer_id: 1,
+          buyer_id: 16,
           address: '123 Ang Mo Kio Avenue 4, #07-123, Singapore 560123',
           created_at: new Date(),
           updated_at: new Date(),
         },
         {
-          buyer_id: 2,
+          buyer_id: 17,
           address: '456 Jurong West Street 52, #12-345, Singapore 640456',
           created_at: new Date(),
           updated_at: new Date(),

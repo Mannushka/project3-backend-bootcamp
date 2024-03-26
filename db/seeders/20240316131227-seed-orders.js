@@ -14,18 +14,16 @@ module.exports = {
      */
     await queryInterface.bulkInsert('orders', [
       {
-        quantity: 1,
         delivery_address: 'Plaza Singapura',
         created_at: new Date(),
         updated_at: new Date(),
-        user_id: 2,
+        user_id: 16,
       },
       {
-        quantity: 3,
         delivery_address: 'Orchard Road',
         created_at: new Date(),
         updated_at: new Date(),
-        user_id: 1,
+        user_id: 17,
       },
     ]);
   },
