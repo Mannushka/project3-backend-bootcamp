@@ -20,7 +20,7 @@ const db = require('./db/models/index');
 const { product, user, order, category } = db;
 
 // Initializing Controllers
-const productsController = new ProductsController(product);
+const productsController = new ProductsController(product, order);
 const ordersController = new OrdersController(order, user, product);
 const categoriesController = new CategoriesController(category);
 const usersController = new UsersController(user);

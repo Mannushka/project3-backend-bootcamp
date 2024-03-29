@@ -6,6 +6,8 @@ class UsersRouter {
     this.controller = controller;
   }
   routes() {
+    router.get('/', this.controller.getAll.bind(this.controller));
+
     router.post('/', this.controller.postNewUser.bind(this.controller));
     router.put('/:userId', this.controller.updateUser.bind(this.controller));
     router.get(

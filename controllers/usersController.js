@@ -9,6 +9,8 @@ class UsersController extends BaseController {
     super(model);
   }
 
+  async getUserBasedOnEmail(req, res) {}
+
   async postNewUser(req, res) {
     const { first_name, last_name, email } = req.body;
     try {

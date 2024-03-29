@@ -6,8 +6,9 @@ const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 const YOUR_DOMAIN = 'http://localhost:3000';
 
 class ProductsController extends BaseController {
-  constructor(model) {
+  constructor(model, ordersModel) {
     super(model);
+    this.ordersModel = ordersModel;
   }
 
   // Retrieve specific product
@@ -209,7 +210,7 @@ class ProductsController extends BaseController {
   }
 
   async makePayment(req, res) {
-    const { priceId } = req.body;
+    const { priceId, delivery_address } = req.body;
 
     try {
       const session = await stripe.checkout.sessions.create({
@@ -229,6 +230,18 @@ class ProductsController extends BaseController {
 
       // Had to return the session URL as JSON for the front end to redirect to instead of directly redirecting due to CORS issues
       res.json({ url: session.url });
+      console.log('This means we can code after res.json()', session);
+
+      // Post orders after payment success
+      // if (session.success_url === 'http://localhost:5173/order/success') {
+      //   console.log('Post order request here!');
+
+      //   // Create order row and order_products row here!
+      //   const newOrder = await this.ordersModel.create({
+      //     delivery_address: delivery_address,
+
+      //   });
+      // }
     } catch (err) {
       res.status(500).json({ error: 'Error creaing checkout session' });
     }
