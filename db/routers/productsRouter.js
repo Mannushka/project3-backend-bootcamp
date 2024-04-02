@@ -35,6 +35,11 @@ class ProductsRouter {
       this.controller.getAllPricesFromStripe.bind(this.controller),
     );
 
+    router.post(
+      '/seed-all-stripe-ids',
+      this.controller.seedStripeIdsIntoAllProducts.bind(this.controller),
+    );
+
     return router;
   }
 }
