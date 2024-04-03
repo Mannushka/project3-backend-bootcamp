@@ -38,14 +38,15 @@ const addressesRouter = new AddressesRouter(addressesController).routes();
 const PORT = 3000;
 const app = express();
 
+app.use(cors());
+
+// Handle preflight OPTIONS requests
 app.options(
   '*',
   cors({
     origin: 'http://localhost:5173',
   }),
 );
-
-app.use(cors());
 
 app.use(express.json());
 

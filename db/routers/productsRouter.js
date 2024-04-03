@@ -26,13 +26,23 @@ class ProductsRouter {
     );
 
     router.post(
-      '/create-checkout-session',
-      this.controller.makePayment.bind(this.controller),
+      '/create-checkout-session-external',
+      this.controller.makePaymentMultiple.bind(this.controller),
     );
+
+    // router.post(
+    //   '/create-checkout-session',
+    //   this.controller.makePaymentEmbedded.bind(this.controller),
+    // );
 
     router.post(
       '/get-stripe-prices',
       this.controller.getAllPricesFromStripe.bind(this.controller),
+    );
+
+    router.post(
+      '/send-email-success',
+      this.controller.sendMailToCustomer.bind(this.controller),
     );
 
     return router;
