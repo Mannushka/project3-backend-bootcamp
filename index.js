@@ -19,7 +19,7 @@ const AddressesController = require('./controllers/addressesController');
 // importing DB
 const db = require('./db/models/index');
 
-const { product, user, order, category, address } = db;
+const { product, user, order, category, address, order_products } = db;
 
 // Initializing Controllers
 const productsController = new ProductsController(product, order);

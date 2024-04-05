@@ -9,10 +9,11 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.user);
 
       // Many-to-Many relationship with products with junction table order_products
-      this.belongsToMany(models.product, {
-        through: 'order_products',
-        timestamps: false,
-      });
+      // this.belongsToMany(models.product, {
+      //   through: 'order_products',
+      //   timestamps: false,
+      // });
+      this.belongsToMany(models.product, { through: 'order_products' });
     }
   }
   Order.init(

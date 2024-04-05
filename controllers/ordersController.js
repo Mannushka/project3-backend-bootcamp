@@ -16,17 +16,10 @@ class OrdersController extends BaseController {
    */
 
   async postOne(req, res) {
-    const {
-      delivery_address,
-      user_id,
-      total_price,
-      productId,
-      quantity_products,
-    } = req.body;
+    const { delivery_address, user_id, total_price, productId, quantity } =
+      req.body;
 
     try {
-      // Change this to logged-in user once Auth0 is established
-
       const productBought = await this.productModel.findByPk(productId);
 
       console.log(productBought);
