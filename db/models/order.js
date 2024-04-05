@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
           key: 'id',
         },
       },
+      total_price: DataTypes.INTEGER,
     },
     {
       sequelize,

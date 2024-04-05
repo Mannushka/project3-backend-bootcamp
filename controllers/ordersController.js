@@ -16,13 +16,16 @@ class OrdersController extends BaseController {
    */
 
   async postOne(req, res) {
-    const { delivery_address } = req.body;
-
-    const { productId, stock_purchased } = req.body;
+    const {
+      delivery_address,
+      user_id,
+      total_price,
+      productId,
+      quantity_products,
+    } = req.body;
 
     try {
       // Change this to logged-in user once Auth0 is established
-      const user_id = 1;
 
       const productBought = await this.productModel.findByPk(productId);
 
@@ -31,16 +34,31 @@ class OrdersController extends BaseController {
       const newOrder = await this.model.create({
         delivery_address: delivery_address,
         user_id: user_id,
+        total_price: total_price,
       });
 
       console.log('newOrder');
       console.log(newOrder);
+      console.log('currentProduct');
+      console.log(productBought);
 
       // Set order_products junction table rows here
-      await newOrder.setProducts(productId);
+      // MAKE A NEW MODEL FOR ORDER_PRODUCTS INSTEAD!
+      await newOrder.addProduct(productBought, {
+        // using 10 as a test example here
+        through: { quantity_products: 10 },
+      });
+
+      const result = await this.model.findOne({
+        where: { delivery_address: delivery_address },
+        include: this.productModel,
+      });
+
+      console.log(result);
 
       return res.send(newOrder);
     } catch (err) {
+      console.error('Error updating through table: ', err);
       return res.status(400).json({ error: true, msg: err });
     }
   }

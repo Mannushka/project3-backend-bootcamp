@@ -7,6 +7,7 @@ class UsersRouter {
   }
   routes() {
     router.get('/', this.controller.getAll.bind(this.controller));
+    router.put('/', this.controller.getUserBasedOnEmail.bind(this.controller));
 
     router.post('/', this.controller.postNewUser.bind(this.controller));
     router.put('/:userId', this.controller.updateUser.bind(this.controller));

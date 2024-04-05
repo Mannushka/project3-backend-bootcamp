@@ -9,7 +9,20 @@ class UsersController extends BaseController {
     super(model);
   }
 
-  async getUserBasedOnEmail(req, res) {}
+  async getUserBasedOnEmail(req, res) {
+    const { name } = req.body;
+
+    try {
+      const targetUser = await this.model.findOne({
+        where: { email: name },
+      });
+
+      return res.json(targetUser);
+    } catch (err) {
+      console.log(err.message);
+      return res.status(400).json({ error: true, msg: err.message });
+    }
+  }
 
   async postNewUser(req, res) {
     const { first_name, last_name, email } = req.body;
