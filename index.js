@@ -23,7 +23,12 @@ const { product, user, order, category, address, order_products } = db;
 
 // Initializing Controllers
 const productsController = new ProductsController(product, order);
-const ordersController = new OrdersController(order, user, product);
+const ordersController = new OrdersController(
+  order,
+  user,
+  product,
+  order_products,
+);
 const categoriesController = new CategoriesController(category);
 const usersController = new UsersController(user);
 const addressesController = new AddressesController(address, user);

@@ -1,10 +1,11 @@
 const BaseController = require('./baseController');
 
 class OrdersController extends BaseController {
-  constructor(model, userModel, productModel) {
+  constructor(model, userModel, productModel, orderProductModel) {
     super(model);
     this.userModel = userModel;
     this.productModel = productModel;
+    this.orderProductModel = orderProductModel;
   }
 
   // Post a new order based on the shopping cart to the orders table
@@ -20,7 +21,11 @@ class OrdersController extends BaseController {
       req.body;
 
     try {
-      const productBought = await this.productModel.findByPk(productId);
+      const productBought = await this.productModel.findByPk(productId, {
+        include: {
+          association: 'orders',
+        },
+      });
 
       console.log(productBought);
 
@@ -31,15 +36,15 @@ class OrdersController extends BaseController {
       });
 
       console.log('newOrder');
-      console.log(newOrder);
+      console.log(newOrder.dataValues);
       console.log('currentProduct');
       console.log(productBought);
 
-      // Set order_products junction table rows here
-      // MAKE A NEW MODEL FOR ORDER_PRODUCTS INSTEAD!
-      await newOrder.addProduct(productBought, {
-        // using 10 as a test example here
-        through: { quantity_products: 10 },
+      // Insert a new row in the junction table, order_products
+      const newEntryInOrderProducts = await this.orderProductModel.create({
+        order_id: newOrder.dataValues.id,
+        product_id: productId,
+        quantity: quantity,
       });
 
       const result = await this.model.findOne({
@@ -49,7 +54,7 @@ class OrdersController extends BaseController {
 
       console.log(result);
 
-      return res.send(newOrder);
+      return res.send([newOrder, newEntryInOrderProducts]);
     } catch (err) {
       console.error('Error updating through table: ', err);
       return res.status(400).json({ error: true, msg: err });
