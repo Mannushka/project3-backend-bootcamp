@@ -1,6 +1,14 @@
 const express = require("express");
 require("dotenv").config();
 const cors = require("cors");
+const { auth } = require("express-oauth2-jwt-bearer");
+require("dotenv").config();
+
+const checkJwt = auth({
+  audience: process.env.AUDIENCE,
+  issuerBaseURL: process.env.ISSUER_BASE_URL,
+  tokenSigningAlg: process.env.TOKEN_SIGNING_ALG,
+});
 
 // import Routers
 const ProductsRouter = require("./db/routers/productsRouter");
@@ -29,7 +37,10 @@ const usersController = new UsersController(user);
 const addressesController = new AddressesController(address, user);
 
 // Initializing Routers
-const productsRouter = new ProductsRouter(productsController).routes();
+const productsRouter = new ProductsRouter(
+  productsController,
+  checkJwt
+).routes();
 const ordersRouter = new OrdersRouter(ordersController).routes();
 const categoriesRouter = new CategoriesRouter(categoriesController).routes();
 const usersRouter = new UsersRouter(usersController).routes();
