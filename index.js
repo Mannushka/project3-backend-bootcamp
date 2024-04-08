@@ -22,7 +22,7 @@ const db = require('./db/models/index');
 const { product, user, order, category, address, order_products } = db;
 
 // Initializing Controllers
-const productsController = new ProductsController(product, order);
+const productsController = new ProductsController(product, order, category);
 const ordersController = new OrdersController(
   order,
   user,

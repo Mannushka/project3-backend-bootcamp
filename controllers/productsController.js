@@ -1,9 +1,9 @@
-const BaseController = require("./baseController");
-const Mailjet = require("node-mailjet");
-require("dotenv").config();
+const BaseController = require('./baseController');
+const Mailjet = require('node-mailjet');
+require('dotenv').config();
 
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
-const YOUR_DOMAIN = "http://localhost:3000";
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
+const YOUR_DOMAIN = 'http://localhost:3000';
 
 // Mailjet Configuration
 const mailjet = Mailjet.apiConnect(
@@ -12,7 +12,7 @@ const mailjet = Mailjet.apiConnect(
   {
     config: {},
     options: {},
-  }
+  },
 );
 
 class ProductsController extends BaseController {
@@ -24,12 +24,15 @@ class ProductsController extends BaseController {
   async getAll(req, res) {
     const { categoryName } = req.query;
 
+    console.log(req.query, categoryName);
+
     try {
       let products;
       if (categoryName) {
         const category = await this.categoryModel.findAll({
           where: { name: categoryName },
         });
+        console.log(`Category is ${category}`);
         const categoryId = category[0].dataValues.id;
         products = await this.model.findAll({
           where: { category_id: categoryId },
@@ -40,6 +43,7 @@ class ProductsController extends BaseController {
 
       return res.json(products);
     } catch (err) {
+      console.log(err);
       return res.status(400).json({ error: true, msg: err });
     }
   }
@@ -50,7 +54,7 @@ class ProductsController extends BaseController {
     try {
       const product = await this.model.findByPk(productId, {
         include: {
-          association: "orders",
+          association: 'orders',
         },
       });
 
@@ -125,27 +129,27 @@ class ProductsController extends BaseController {
     try {
       const product = stripe.products
         .create({
-          name: "Starter Subscription",
-          description: "$12/Month subscription",
+          name: 'Starter Subscription',
+          description: '$12/Month subscription',
         })
         .then((product) => {
           stripe.prices
             .create({
               unit_amount: 1200,
-              currency: "usd",
+              currency: 'usd',
               recurring: {
-                interval: "month",
+                interval: 'month',
               },
               product: product.id,
             })
             .then((price) => {
               console.log(
-                "Success! Here is your starter subscription product id: " +
-                  product.id
+                'Success! Here is your starter subscription product id: ' +
+                  product.id,
               );
               console.log(
-                "Success! Here is your starter subscription price id: " +
-                  price.id
+                'Success! Here is your starter subscription price id: ' +
+                  price.id,
               );
             });
         });
@@ -180,19 +184,19 @@ class ProductsController extends BaseController {
               .then((product) => {
                 stripe.prices.create({
                   unit_amount: productPrice,
-                  currency: "sgd",
+                  currency: 'sgd',
                   product: product.id,
                 });
               })
               .then((response) => {
-                console.log("Success! Here are the product details:", response);
+                console.log('Success! Here are the product details:', response);
               });
 
             console.log(createdProduct);
           } catch (err) {
             console.error(`Error creating product in Stripe`, err);
           }
-        })
+        }),
       );
 
       return res.json(products);
@@ -219,19 +223,19 @@ class ProductsController extends BaseController {
               .then((product) => {
                 stripe.prices.create({
                   unit_amount: productPrice,
-                  currency: "sgd",
+                  currency: 'sgd',
                   product: product.id,
                 });
               })
               .then((response) => {
-                console.log("Success! Here are the product details:", response);
+                console.log('Success! Here are the product details:', response);
               });
 
             console.log(createdProduct);
           } catch (err) {
             console.error(`Error creating product in Stripe`, err);
           }
-        })
+        }),
       );
 
       // console.log(formattedOutput);
@@ -249,7 +253,7 @@ class ProductsController extends BaseController {
 
     if (itemNames) {
       console.log(itemNames);
-      var itemList = itemNames.map((item) => `<li>${item}</li>`).join("");
+      var itemList = itemNames.map((item) => `<li>${item}</li>`).join('');
       console.log(`List of items are: ${itemList}`);
     }
 
@@ -259,26 +263,26 @@ class ProductsController extends BaseController {
           price: `${priceId.priceId}`,
           quantity: priceId.quantity,
         })),
-        mode: "payment",
+        mode: 'payment',
         success_url: `http://localhost:5173/order/success`,
         cancel_url: `${YOUR_DOMAIN}?canceled=true`,
       });
 
       res.json({ url: session.url });
-      console.log("This means we can code after res.json()", session);
+      console.log('This means we can code after res.json()', session);
     } catch (err) {
-      res.status(500).json({ error: "Error creaing checkout session" });
+      res.status(500).json({ error: 'Error creaing checkout session' });
     }
 
-    console.log("We can still code after checkout!");
+    console.log('We can still code after checkout!');
     // Sending email to customer
     try {
-      const request = mailjet.post("send", { version: "v3.1" }).request({
+      const request = mailjet.post('send', { version: 'v3.1' }).request({
         Messages: [
           {
             From: {
-              Email: "ianchow9898@gmail.com",
-              Name: "Techie E-Store",
+              Email: 'ianchow9898@gmail.com',
+              Name: 'Techie E-Store',
             },
             To: [
               {
@@ -286,9 +290,9 @@ class ProductsController extends BaseController {
                 Name: userFirstName,
               },
             ],
-            Subject: "Thank you for purchasing from Techie E-Store",
+            Subject: 'Thank you for purchasing from Techie E-Store',
             TextPart:
-              "Dear Ian, welcome to Techie E-store! May the technological force be with you!",
+              'Dear Ian, welcome to Techie E-store! May the technological force be with you!',
             HTMLPart: `<h3>Dear ${userFirstName} ${userLastName}, Thank you for purchasing from <a href="https://www.mailjet.com/">Techie E-store</a>!</h3> <p>Here are the items you purchased:</p>
                       <ul>
                        ${itemList}
@@ -323,7 +327,7 @@ class ProductsController extends BaseController {
             quantity: 1,
           },
         ],
-        mode: "payment",
+        mode: 'payment',
         success_url: `http://localhost:5173/order/success`,
         cancel_url: `${YOUR_DOMAIN}?canceled=true`,
       });
@@ -332,7 +336,7 @@ class ProductsController extends BaseController {
 
       // Had to return the session URL as JSON for the front end to redirect to instead of directly redirecting due to CORS issues
       res.json({ url: session.url });
-      console.log("This means we can code after res.json()", session);
+      console.log('This means we can code after res.json()', session);
 
       // Post orders after payment success
       // if (session.success_url === 'http://localhost:5173/order/success') {
@@ -345,7 +349,7 @@ class ProductsController extends BaseController {
       //   });
       // }
     } catch (err) {
-      res.status(500).json({ error: "Error creaing checkout session" });
+      res.status(500).json({ error: 'Error creaing checkout session' });
     }
   }
 
@@ -370,22 +374,22 @@ class ProductsController extends BaseController {
 
   async sendMailToCustomer(req, res) {
     try {
-      const request = mailjet.post("send", { version: "v3.1" }).request({
+      const request = mailjet.post('send', { version: 'v3.1' }).request({
         Messages: [
           {
             From: {
-              Email: "ianchow9898@gmail.com",
-              Name: "Mailjet Pilot",
+              Email: 'ianchow9898@gmail.com',
+              Name: 'Mailjet Pilot',
             },
             To: [
               {
-                Email: "ianchow989898@gmail.com",
-                Name: "passenger 1",
+                Email: 'ianchow989898@gmail.com',
+                Name: 'passenger 1',
               },
             ],
-            Subject: "Your email flight plan!",
+            Subject: 'Your email flight plan!',
             TextPart:
-              "Dear Ian, welcome to Mailjet! May the delivery force be with you!",
+              'Dear Ian, welcome to Mailjet! May the delivery force be with you!',
             HTMLPart:
               '<h3>Dear Ian, welcome to <a href="https://www.mailjet.com/">Mailjet</a>!</h3><br />May the delivery force be with you!',
           },
