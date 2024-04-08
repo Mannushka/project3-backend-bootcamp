@@ -21,11 +21,13 @@ class OrdersController extends BaseController {
       req.body;
 
     try {
-      const productBought = await this.productModel.findByPk(productId, {
-        include: {
-          association: 'orders',
-        },
-      });
+      // const productBought = await this.productModel.findByPk(productId, {
+      //   include: {
+      //     association: 'orders',
+      //   },
+      // });
+
+      const productBought = await this.productModel.findByPk(productId);
 
       console.log(productBought);
 
@@ -40,19 +42,23 @@ class OrdersController extends BaseController {
       console.log('currentProduct');
       console.log(productBought);
 
+      console.log('Current order id is', newOrder.dataValues.id);
+      console.log(productId);
+
       // Insert a new row in the junction table, order_products
+
       const newEntryInOrderProducts = await this.orderProductModel.create({
         order_id: newOrder.dataValues.id,
         product_id: productId,
         quantity: quantity,
       });
 
-      const result = await this.model.findOne({
-        where: { delivery_address: delivery_address },
-        include: this.productModel,
-      });
+      // const result = await this.model.findOne({
+      //   where: { delivery_address: delivery_address },
+      //   include: this.productModel,
+      // });
 
-      console.log(result);
+      // console.log(result);
 
       return res.send([newOrder, newEntryInOrderProducts]);
     } catch (err) {
