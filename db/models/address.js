@@ -9,7 +9,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.user);
+      // this.belongsTo(models.user);
+      // // 1 to Many with orders
+      // this.hasMany(models.address);
     }
   }
   Address.init(

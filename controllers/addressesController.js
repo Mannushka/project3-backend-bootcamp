@@ -43,11 +43,24 @@ class AddressesController extends BaseController {
     }
   }
 
-  //every time the user writes a new address in the shipping details page, we need to post this address to our addresses table
+  async getAddressIdBasedOnActualAddress(req, res) {
+    const { delivery_address } = req.body;
 
-  //Before we send a post req to server, need to check if this address already exits in our DB
-  //If yes -> dont post
-  // if no -> make a post request
+    try {
+      const address = await this.model.findOne({
+        where: {
+          address: delivery_address,
+        },
+      });
+
+      console.log(address.dataValues);
+
+      return res.status(200).json(address.id);
+    } catch (err) {
+      console.error(err);
+      return res.status(400).json({ error: true, msg: err });
+    }
+  }
 
   async postNewAddress(req, res) {
     const { email, address } = req.body;

@@ -17,8 +17,7 @@ class OrdersController extends BaseController {
    */
 
   async postOne(req, res) {
-    const { delivery_address, user_id, total_price, productId, quantity } =
-      req.body;
+    const { address_id, user_id, total_price, productId, quantity } = req.body;
 
     try {
       // const productBought = await this.productModel.findByPk(productId, {
@@ -32,7 +31,7 @@ class OrdersController extends BaseController {
       console.log(productBought);
 
       const newOrder = await this.model.create({
-        delivery_address: delivery_address,
+        address_id: address_id,
         user_id: user_id,
         total_price: total_price,
       });
@@ -62,7 +61,7 @@ class OrdersController extends BaseController {
 
       return res.send([newOrder, newEntryInOrderProducts]);
     } catch (err) {
-      console.error('Error updating through table: ', err);
+      console.error(err);
       return res.status(400).json({ error: true, msg: err });
     }
   }
