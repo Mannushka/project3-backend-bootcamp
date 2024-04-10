@@ -44,7 +44,7 @@ class AddressesController extends BaseController {
   }
 
   async getAddressIdBasedOnActualAddress(req, res) {
-    const { delivery_address } = req.body;
+    const { delivery_address } = req.query;
 
     try {
       const address = await this.model.findOne({

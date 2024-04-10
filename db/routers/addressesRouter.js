@@ -9,7 +9,7 @@ class AddressesRouter {
   routes() {
     router.get('/', this.controller.getAllAddresses.bind(this.controller));
     router.post('/', this.controller.postNewAddress.bind(this.controller));
-    router.post(
+    router.get(
       '/get-address-id',
       this.controller.getAddressIdBasedOnActualAddress.bind(this.controller),
     );
