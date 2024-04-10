@@ -8,28 +8,11 @@ class OrdersController extends BaseController {
     this.orderProductModel = orderProductModel;
   }
 
-  // Post a new order based on the shopping cart to the orders table
-  /**
-   * Once the user is finished shopping and wants to checkout, we get the data in the cart object in the frontend to do a POST request to the database for the orders table 
-     as well as the order_products table for the product_ids as well as the quantity of products ordered.
-   * NO NEED TO POST ANY PRODUCT DETAILS LIKE PRICE, TITLE, DESCRIPTION ETC 
-     SINCE THE PRODUCT_ID IN THE ORDERS_PRODUCTS TABLE ALREADY REFERENCES ALL THIS INFORMATION
-   */
-
   async postOne(req, res) {
+    // productId is an array of ids
     const { address_id, user_id, total_price, productId, quantity } = req.body;
 
     try {
-      // const productBought = await this.productModel.findByPk(productId, {
-      //   include: {
-      //     association: 'orders',
-      //   },
-      // });
-
-      const productBought = await this.productModel.findByPk(productId);
-
-      console.log(productBought);
-
       const newOrder = await this.model.create({
         address_id: address_id,
         user_id: user_id,
@@ -39,27 +22,23 @@ class OrdersController extends BaseController {
       console.log('newOrder');
       console.log(newOrder.dataValues);
       console.log('currentProduct');
-      console.log(productBought);
 
       console.log('Current order id is', newOrder.dataValues.id);
       console.log(productId);
 
       // Insert a new row in the junction table, order_products
+      const arrayOfJunctionTableEntries = [];
 
-      const newEntryInOrderProducts = await this.orderProductModel.create({
-        order_id: newOrder.dataValues.id,
-        product_id: productId,
-        quantity: quantity,
-      });
+      for (let i = 0; i < productId.length; i++) {
+        const newEntryInOrderProducts = await this.orderProductModel.create({
+          order_id: newOrder.dataValues.id,
+          product_id: productId[i],
+          quantity: quantity,
+        });
+        arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
+      }
 
-      // const result = await this.model.findOne({
-      //   where: { delivery_address: delivery_address },
-      //   include: this.productModel,
-      // });
-
-      // console.log(result);
-
-      return res.send([newOrder, newEntryInOrderProducts]);
+      return res.send([newOrder, arrayOfJunctionTableEntries]);
     } catch (err) {
       console.error(err);
       return res.status(400).json({ error: true, msg: err });
@@ -90,8 +69,6 @@ class OrdersController extends BaseController {
       });
 
       orderAssociationToBeDeleted.setProducts([]);
-
-      // await orderToBeDeleted.destroy();
 
       return res.send(orderAssociationToBeDeleted);
     } catch (error) {

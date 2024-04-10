@@ -265,7 +265,8 @@ class ProductsController extends BaseController {
         })),
         mode: 'payment',
         success_url: `http://localhost:5173/order/success`,
-        cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+        // cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+        cancel_url: `http://localhost:5173/checkout`,
       });
 
       res.json({ url: session.url });
@@ -329,7 +330,8 @@ class ProductsController extends BaseController {
         ],
         mode: 'payment',
         success_url: `http://localhost:5173/order/success`,
-        cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+        // cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+        cancel_url: `http://localhost:5173/checkout`,
       });
 
       // res.redirect(303, session.url);
