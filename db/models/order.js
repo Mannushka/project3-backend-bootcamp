@@ -1,5 +1,5 @@
-'use strict';
-const { Model } = require('sequelize');
+"use strict";
+const { Model } = require("sequelize");
 module.exports = (sequelize, DataTypes) => {
   class Order extends Model {
     static associate(models) {
@@ -13,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
 
       // Many-to-Many relationship with products with junction table order_products
       this.belongsToMany(models.product, {
-        through: 'order_products',
-        foreignKey: 'order_id',
+        through: "order_products",
+        foreignKey: "order_id",
       });
     }
   }
@@ -25,8 +25,8 @@ module.exports = (sequelize, DataTypes) => {
       address_id: {
         type: DataTypes.INTEGER,
         references: {
-          model: 'addresses',
-          key: 'id',
+          model: "addresses",
+          key: "id",
         },
       },
       user_id: {
@@ -34,18 +34,18 @@ module.exports = (sequelize, DataTypes) => {
         references: {
           // Sequelize docs suggest this should be plural table name and not singular model name
           // https://sequelize.org/api/v6/class/src/model.js~model#static-method-init
-          model: 'users',
-          key: 'id',
+          model: "users",
+          key: "id",
         },
       },
       total_price: DataTypes.INTEGER,
     },
     {
       sequelize,
-      modelName: 'order',
+      modelName: "order",
       timestamps: true,
       underscored: true,
-    },
+    }
   );
   return Order;
 };

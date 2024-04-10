@@ -2,11 +2,12 @@ const { where } = require("sequelize");
 const BaseController = require("./baseController");
 
 class OrdersController extends BaseController {
-  constructor(model, userModel, productModel, orderProductModel) {
+  constructor(model, userModel, productModel, orderProductModel, addressModel) {
     super(model);
     this.userModel = userModel;
     this.productModel = productModel;
     this.orderProductModel = orderProductModel;
+    this.addressModel = addressModel;
   }
 
   async getAllOrdersOfCurrUser(req, res) {
@@ -16,22 +17,25 @@ class OrdersController extends BaseController {
         where: { email: email },
       });
       const user_id = user[0].dataValues.id;
-      const orders = await this.model.findAll({ where: { user_id: user_id } });
+      const orders = await this.model.findAll({
+        where: { user_id: user_id },
+        include: [
+          {
+            model: this.productModel,
+            attributes: ["id", "title", "price", "img"],
+            through: {
+              model: this.orderProductModel,
+              attributes: ["quantity"],
+            },
+          },
+          { model: this.addressModel, attributes: ["address"] },
+        ],
+      });
       return res.json(orders);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err.message });
     }
   }
-
-  // async getAllOrdersOfCurrUser(req, res) {
-  //   const { user_id } = req.query;
-  //   try {
-  //     const orders = await this.model.findAll({ where: { user_id: user_id } });
-  //     return res.json(orders);
-  //   } catch (err) {
-  //     return res.status(400).json({ error: true, msg: err.message });
-  //   }
-  // }
 
   async postOne(req, res) {
     // productId is an array of ids
