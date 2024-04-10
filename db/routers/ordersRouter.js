@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 class OrdersRouter {
@@ -7,12 +7,16 @@ class OrdersRouter {
   }
 
   routes() {
-    router.get('/:orderId', this.controller.getOne.bind(this.controller));
-    router.post('/', this.controller.postOne.bind(this.controller));
-    router.delete('/:orderId', this.controller.deleteOne.bind(this.controller));
+    router.get("/:orderId", this.controller.getOne.bind(this.controller));
+    router.get(
+      "/",
+      this.controller.getAllOrdersOfCurrUser.bind(this.controller)
+    );
+    router.post("/", this.controller.postOne.bind(this.controller));
+    router.delete("/:orderId", this.controller.deleteOne.bind(this.controller));
     router.delete(
-      '/association/:orderId',
-      this.controller.deleteAssociation.bind(this.controller),
+      "/association/:orderId",
+      this.controller.deleteAssociation.bind(this.controller)
     );
 
     return router;

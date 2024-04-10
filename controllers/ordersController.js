@@ -1,11 +1,40 @@
-const BaseController = require('./baseController');
+const { where } = require("sequelize");
+const BaseController = require("./baseController");
 
 class OrdersController extends BaseController {
-  constructor(model, userModel, productModel, orderProductModel) {
+  constructor(model, userModel, productModel, orderProductModel, addressModel) {
     super(model);
     this.userModel = userModel;
     this.productModel = productModel;
     this.orderProductModel = orderProductModel;
+    this.addressModel = addressModel;
+  }
+
+  async getAllOrdersOfCurrUser(req, res) {
+    const { email } = req.query;
+    try {
+      const user = await this.userModel.findOrCreate({
+        where: { email: email },
+      });
+      const user_id = user[0].dataValues.id;
+      const orders = await this.model.findAll({
+        where: { user_id: user_id },
+        include: [
+          {
+            model: this.productModel,
+            attributes: ["id", "title", "price", "img"],
+            through: {
+              model: this.orderProductModel,
+              attributes: ["quantity"],
+            },
+          },
+          { model: this.addressModel, attributes: ["address"] },
+        ],
+      });
+      return res.json(orders);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err.message });
+    }
   }
 
   async postOne(req, res) {
@@ -19,11 +48,11 @@ class OrdersController extends BaseController {
         total_price: total_price,
       });
 
-      console.log('newOrder');
+      console.log("newOrder");
       console.log(newOrder.dataValues);
-      console.log('currentProduct');
+      console.log("currentProduct");
 
-      console.log('Current order id is', newOrder.dataValues.id);
+      console.log("Current order id is", newOrder.dataValues.id);
       console.log(productId);
 
       // Insert a new row in the junction table, order_products
@@ -50,7 +79,7 @@ class OrdersController extends BaseController {
 
     const order = await this.model.findByPk(orderId, {
       include: {
-        association: 'products',
+        association: "products",
       },
     });
 
@@ -64,7 +93,7 @@ class OrdersController extends BaseController {
     try {
       const orderAssociationToBeDeleted = await this.model.findByPk(orderId, {
         include: {
-          association: 'products',
+          association: "products",
         },
       });
 
@@ -89,7 +118,7 @@ class OrdersController extends BaseController {
 
       console.log(orderToBeDeleted);
 
-      res.status(200).send('Success');
+      res.status(200).send("Success");
     } catch (error) {
       console.error(error);
       res.status(400).send({ error: true, msg: error });
