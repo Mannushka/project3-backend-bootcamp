@@ -1,4 +1,4 @@
-const BaseController = require('./baseController');
+const BaseController = require("./baseController");
 
 class OrdersController extends BaseController {
   constructor(model, userModel, productModel, orderProductModel) {
@@ -6,6 +6,16 @@ class OrdersController extends BaseController {
     this.userModel = userModel;
     this.productModel = productModel;
     this.orderProductModel = orderProductModel;
+  }
+
+  async getAllOrdersOfCurrUser(req, res) {
+    const { user_id } = req.query;
+    try {
+      const orders = await this.model.findAll({ where: { user_id: user_id } });
+      return res.json(orders);
+    } catch (err) {
+      return res.status(400).json({ error: true, msg: err.message });
+    }
   }
 
   async postOne(req, res) {
@@ -19,11 +29,11 @@ class OrdersController extends BaseController {
         total_price: total_price,
       });
 
-      console.log('newOrder');
+      console.log("newOrder");
       console.log(newOrder.dataValues);
-      console.log('currentProduct');
+      console.log("currentProduct");
 
-      console.log('Current order id is', newOrder.dataValues.id);
+      console.log("Current order id is", newOrder.dataValues.id);
       console.log(productId);
 
       // Insert a new row in the junction table, order_products
@@ -50,7 +60,7 @@ class OrdersController extends BaseController {
 
     const order = await this.model.findByPk(orderId, {
       include: {
-        association: 'products',
+        association: "products",
       },
     });
 
@@ -64,7 +74,7 @@ class OrdersController extends BaseController {
     try {
       const orderAssociationToBeDeleted = await this.model.findByPk(orderId, {
         include: {
-          association: 'products',
+          association: "products",
         },
       });
 
@@ -89,7 +99,7 @@ class OrdersController extends BaseController {
 
       console.log(orderToBeDeleted);
 
-      res.status(200).send('Success');
+      res.status(200).send("Success");
     } catch (error) {
       console.error(error);
       res.status(400).send({ error: true, msg: error });
