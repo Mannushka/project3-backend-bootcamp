@@ -1,3 +1,4 @@
+const { where } = require("sequelize");
 const BaseController = require("./baseController");
 
 class OrdersController extends BaseController {
@@ -9,14 +10,28 @@ class OrdersController extends BaseController {
   }
 
   async getAllOrdersOfCurrUser(req, res) {
-    const { user_id } = req.query;
+    const { email } = req.query;
     try {
+      const user = await this.userModel.findOrCreate({
+        where: { email: email },
+      });
+      const user_id = user[0].dataValues.id;
       const orders = await this.model.findAll({ where: { user_id: user_id } });
       return res.json(orders);
     } catch (err) {
       return res.status(400).json({ error: true, msg: err.message });
     }
   }
+
+  // async getAllOrdersOfCurrUser(req, res) {
+  //   const { user_id } = req.query;
+  //   try {
+  //     const orders = await this.model.findAll({ where: { user_id: user_id } });
+  //     return res.json(orders);
+  //   } catch (err) {
+  //     return res.status(400).json({ error: true, msg: err.message });
+  //   }
+  // }
 
   async postOne(req, res) {
     // productId is an array of ids
