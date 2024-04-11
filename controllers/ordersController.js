@@ -78,9 +78,12 @@ class OrdersController extends BaseController {
     const { orderId } = req.params;
 
     const order = await this.model.findByPk(orderId, {
-      include: {
-        association: "products",
-      },
+      include: [
+        {
+          association: "products",
+        },
+        { model: this.addressModel, attributes: ["address"] },
+      ],
     });
 
     return res.send(order);
