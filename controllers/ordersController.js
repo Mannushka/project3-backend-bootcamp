@@ -38,8 +38,8 @@ class OrdersController extends BaseController {
   }
 
   async postOne(req, res) {
-    // productId is an array of ids
-    const { address_id, user_id, total_price, productId, quantity } = req.body;
+    // products is an array of objects where key = product_id, value = quantity in cart
+    const { address_id, user_id, total_price, products } = req.body;
 
     try {
       const newOrder = await this.model.create({
@@ -48,21 +48,15 @@ class OrdersController extends BaseController {
         total_price: total_price,
       });
 
-      console.log("newOrder");
-      console.log(newOrder.dataValues);
-      console.log("currentProduct");
-
-      console.log("Current order id is", newOrder.dataValues.id);
-      console.log(productId);
-
       // Insert a new row in the junction table, order_products
       const arrayOfJunctionTableEntries = [];
-
-      for (let i = 0; i < productId.length; i++) {
+      for (let i = 0; i < products.length; i++) {
+        const productObj = products[i];
+        const [key, value] = Object.entries(productObj)[0];
         const newEntryInOrderProducts = await this.orderProductModel.create({
           order_id: newOrder.dataValues.id,
-          product_id: productId[i],
-          quantity: quantity,
+          product_id: key,
+          quantity: value,
         });
         arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
       }
