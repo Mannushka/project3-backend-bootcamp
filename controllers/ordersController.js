@@ -52,16 +52,38 @@ class OrdersController extends BaseController {
       const arrayOfJunctionTableEntries = [];
       for (let i = 0; i < products.length; i++) {
         const productObj = products[i];
-        const [key, value] = Object.entries(productObj)[0];
+        const [id, quantity] = Object.entries(productObj)[0];
         const newEntryInOrderProducts = await this.orderProductModel.create({
           order_id: newOrder.dataValues.id,
-          product_id: key,
-          quantity: value,
+          product_id: id,
+          quantity: quantity,
         });
         arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
       }
 
-      return res.send([newOrder, arrayOfJunctionTableEntries]);
+      //update product stock
+      const purchasedProducts = [];
+
+      for (let i = 0; i < products.length; i++) {
+        const productObj = products[i];
+        const [id, quantity] = Object.entries(productObj)[0];
+
+        const product = await this.productModel.findByPk(id);
+
+        const stock = product.dataValues.stock_left;
+
+        const stock_left = stock - quantity;
+
+        const updatedProduct = await product.update({ stock_left: stock_left });
+
+        purchasedProducts.push(updatedProduct);
+      }
+
+      return res.send([
+        newOrder,
+        arrayOfJunctionTableEntries,
+        purchasedProducts,
+      ]);
     } catch (err) {
       console.error(err);
       return res.status(400).json({ error: true, msg: err });
