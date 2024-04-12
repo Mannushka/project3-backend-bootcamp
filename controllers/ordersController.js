@@ -38,8 +38,8 @@ class OrdersController extends BaseController {
   }
 
   async postOne(req, res) {
-    // productId is an array of ids
-    const { address_id, user_id, total_price, productId, quantity } = req.body;
+    // products is an array of objects where key = product_id, value = quantity in cart
+    const { address_id, user_id, total_price, products } = req.body;
 
     try {
       const newOrder = await this.model.create({
@@ -48,26 +48,42 @@ class OrdersController extends BaseController {
         total_price: total_price,
       });
 
-      console.log("newOrder");
-      console.log(newOrder.dataValues);
-      console.log("currentProduct");
-
-      console.log("Current order id is", newOrder.dataValues.id);
-      console.log(productId);
-
       // Insert a new row in the junction table, order_products
       const arrayOfJunctionTableEntries = [];
-
-      for (let i = 0; i < productId.length; i++) {
+      for (let i = 0; i < products.length; i++) {
+        const productObj = products[i];
+        const [id, quantity] = Object.entries(productObj)[0];
         const newEntryInOrderProducts = await this.orderProductModel.create({
           order_id: newOrder.dataValues.id,
-          product_id: productId[i],
+          product_id: id,
           quantity: quantity,
         });
         arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
       }
 
-      return res.send([newOrder, arrayOfJunctionTableEntries]);
+      //update product stock
+      const purchasedProducts = [];
+
+      for (let i = 0; i < products.length; i++) {
+        const productObj = products[i];
+        const [id, quantity] = Object.entries(productObj)[0];
+
+        const product = await this.productModel.findByPk(id);
+
+        const stock = product.dataValues.stock_left;
+
+        const stock_left = stock - quantity;
+
+        const updatedProduct = await product.update({ stock_left: stock_left });
+
+        purchasedProducts.push(updatedProduct);
+      }
+
+      return res.send([
+        newOrder,
+        arrayOfJunctionTableEntries,
+        purchasedProducts,
+      ]);
     } catch (err) {
       console.error(err);
       return res.status(400).json({ error: true, msg: err });
