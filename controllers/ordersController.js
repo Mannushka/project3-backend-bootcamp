@@ -1,5 +1,10 @@
 const { where } = require("sequelize");
 const BaseController = require("./baseController");
+const Sequelize = require("sequelize");
+// const sequelize = new Sequelize("postgres://mz:@127.0.0.1:5432/tech_store_app");
+const sequelize = new Sequelize(
+  `postgres://${process.env.DB_USERNAME}:@${process.env.DB_HOST}:5432/${process.env.DB_NAME}`
+);
 
 class OrdersController extends BaseController {
   constructor(model, userModel, productModel, orderProductModel, addressModel) {
@@ -41,51 +46,111 @@ class OrdersController extends BaseController {
     // products is an array of objects where key = product_id, value = quantity in cart
     const { address_id, user_id, total_price, products } = req.body;
 
+    // try {
+    //   const newOrder = await this.model.create({
+    //     address_id: address_id,
+    //     user_id: user_id,
+    //     total_price: total_price,
+    //   });
+
+    //   // Insert a new row in the junction table, order_products
+    //   const arrayOfJunctionTableEntries = [];
+    //   for (let i = 0; i < products.length; i++) {
+    //     const productObj = products[i];
+    //     const [id, quantity] = Object.entries(productObj)[0];
+    //     const newEntryInOrderProducts = await this.orderProductModel.create({
+    //       order_id: newOrder.dataValues.id,
+    //       product_id: id,
+    //       quantity: quantity,
+    //     });
+    //     arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
+    //   }
+
+    //   //update product stock
+    //   const purchasedProducts = [];
+
+    //   for (let i = 0; i < products.length; i++) {
+    //     const productObj = products[i];
+    //     const [id, quantity] = Object.entries(productObj)[0];
+
+    //     const product = await this.productModel.findByPk(id);
+
+    //     const stock = product.dataValues.stock_left;
+
+    //     const stock_left = stock - quantity;
+
+    //     const updatedProduct = await product.update({ stock_left: stock_left });
+
+    //     purchasedProducts.push(updatedProduct);
+    //   }
+
+    //   return res.send([
+    //     newOrder,
+    //     arrayOfJunctionTableEntries,
+    //     purchasedProducts,
+    //   ]);
+    // } catch (err) {
+    //   console.error(err);
+    //   return res.status(400).json({ error: true, msg: err });
+    // }
+
+    //implement transaction
     try {
-      const newOrder = await this.model.create({
-        address_id: address_id,
-        user_id: user_id,
-        total_price: total_price,
+      const result = await sequelize.transaction(async (t) => {
+        const newOrder = await this.model.create(
+          {
+            address_id: address_id,
+            user_id: user_id,
+            total_price: total_price,
+          },
+          { transaction: t }
+        );
+
+        // Insert a new row in the junction table, order_products
+        const arrayOfJunctionTableEntries = [];
+        for (let i = 0; i < products.length; i++) {
+          const productObj = products[i];
+          const [id, quantity] = Object.entries(productObj)[0];
+          const newEntryInOrderProducts = await this.orderProductModel.create(
+            {
+              order_id: newOrder.dataValues.id,
+              product_id: id,
+              quantity: quantity,
+            },
+            { transaction: t }
+          );
+          arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
+        }
+
+        //update product stock
+        const purchasedProducts = [];
+
+        for (let i = 0; i < products.length; i++) {
+          const productObj = products[i];
+          const [id, quantity] = Object.entries(productObj)[0];
+
+          const product = await this.productModel.findByPk(id);
+
+          const stock = product.dataValues.stock_left;
+
+          const stock_left = stock - quantity;
+
+          const updatedProduct = await product.update(
+            { stock_left: stock_left },
+            { transaction: t }
+          );
+
+          purchasedProducts.push(updatedProduct);
+        }
+
+        return res.send([
+          newOrder,
+          arrayOfJunctionTableEntries,
+          purchasedProducts,
+        ]);
       });
-
-      // Insert a new row in the junction table, order_products
-      const arrayOfJunctionTableEntries = [];
-      for (let i = 0; i < products.length; i++) {
-        const productObj = products[i];
-        const [id, quantity] = Object.entries(productObj)[0];
-        const newEntryInOrderProducts = await this.orderProductModel.create({
-          order_id: newOrder.dataValues.id,
-          product_id: id,
-          quantity: quantity,
-        });
-        arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
-      }
-
-      //update product stock
-      const purchasedProducts = [];
-
-      for (let i = 0; i < products.length; i++) {
-        const productObj = products[i];
-        const [id, quantity] = Object.entries(productObj)[0];
-
-        const product = await this.productModel.findByPk(id);
-
-        const stock = product.dataValues.stock_left;
-
-        const stock_left = stock - quantity;
-
-        const updatedProduct = await product.update({ stock_left: stock_left });
-
-        purchasedProducts.push(updatedProduct);
-      }
-
-      return res.send([
-        newOrder,
-        arrayOfJunctionTableEntries,
-        purchasedProducts,
-      ]);
     } catch (err) {
-      console.error(err);
+      console.error(err.message);
       return res.status(400).json({ error: true, msg: err });
     }
   }
