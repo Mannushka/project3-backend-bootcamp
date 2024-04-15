@@ -1,9 +1,9 @@
-const { where } = require("sequelize");
-const BaseController = require("./baseController");
-const Sequelize = require("sequelize");
+const { where } = require('sequelize');
+const BaseController = require('./baseController');
+const Sequelize = require('sequelize');
 // const sequelize = new Sequelize("postgres://mz:@127.0.0.1:5432/tech_store_app");
 const sequelize = new Sequelize(
-  `postgres://${process.env.DB_USERNAME}:@${process.env.DB_HOST}:5432/${process.env.DB_NAME}`
+  `postgres://${process.env.DB_USERNAME}:@${process.env.DB_HOST}:5432/${process.env.DB_NAME}`,
 );
 
 class OrdersController extends BaseController {
@@ -27,13 +27,13 @@ class OrdersController extends BaseController {
         include: [
           {
             model: this.productModel,
-            attributes: ["id", "title", "price", "img"],
+            attributes: ['id', 'title', 'price', 'img'],
             through: {
               model: this.orderProductModel,
-              attributes: ["quantity"],
+              attributes: ['quantity'],
             },
           },
-          { model: this.addressModel, attributes: ["address"] },
+          { model: this.addressModel, attributes: ['address'] },
         ],
       });
       return res.json(orders);
@@ -46,53 +46,12 @@ class OrdersController extends BaseController {
     // products is an array of objects where key = product_id, value = quantity in cart
     const { address_id, user_id, total_price, products } = req.body;
 
-    // try {
-    //   const newOrder = await this.model.create({
-    //     address_id: address_id,
-    //     user_id: user_id,
-    //     total_price: total_price,
-    //   });
-
-    //   // Insert a new row in the junction table, order_products
-    //   const arrayOfJunctionTableEntries = [];
-    //   for (let i = 0; i < products.length; i++) {
-    //     const productObj = products[i];
-    //     const [id, quantity] = Object.entries(productObj)[0];
-    //     const newEntryInOrderProducts = await this.orderProductModel.create({
-    //       order_id: newOrder.dataValues.id,
-    //       product_id: id,
-    //       quantity: quantity,
-    //     });
-    //     arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
-    //   }
-
-    //   //update product stock
-    //   const purchasedProducts = [];
-
-    //   for (let i = 0; i < products.length; i++) {
-    //     const productObj = products[i];
-    //     const [id, quantity] = Object.entries(productObj)[0];
-
-    //     const product = await this.productModel.findByPk(id);
-
-    //     const stock = product.dataValues.stock_left;
-
-    //     const stock_left = stock - quantity;
-
-    //     const updatedProduct = await product.update({ stock_left: stock_left });
-
-    //     purchasedProducts.push(updatedProduct);
-    //   }
-
-    //   return res.send([
-    //     newOrder,
-    //     arrayOfJunctionTableEntries,
-    //     purchasedProducts,
-    //   ]);
-    // } catch (err) {
-    //   console.error(err);
-    //   return res.status(400).json({ error: true, msg: err });
-    // }
+    // Check if there are products
+    if (!products || products.length === 0) {
+      return res
+        .status(400)
+        .json({ error: true, msg: 'No products in the order' });
+    }
 
     //implement transaction
     try {
@@ -103,7 +62,7 @@ class OrdersController extends BaseController {
             user_id: user_id,
             total_price: total_price,
           },
-          { transaction: t }
+          { transaction: t },
         );
 
         // Insert a new row in the junction table, order_products
@@ -117,7 +76,7 @@ class OrdersController extends BaseController {
               product_id: id,
               quantity: quantity,
             },
-            { transaction: t }
+            { transaction: t },
           );
           arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
         }
@@ -137,7 +96,7 @@ class OrdersController extends BaseController {
 
           const updatedProduct = await product.update(
             { stock_left: stock_left },
-            { transaction: t }
+            { transaction: t },
           );
 
           purchasedProducts.push(updatedProduct);
@@ -161,9 +120,9 @@ class OrdersController extends BaseController {
     const order = await this.model.findByPk(orderId, {
       include: [
         {
-          association: "products",
+          association: 'products',
         },
-        { model: this.addressModel, attributes: ["address"] },
+        { model: this.addressModel, attributes: ['address'] },
       ],
     });
 
@@ -177,7 +136,7 @@ class OrdersController extends BaseController {
     try {
       const orderAssociationToBeDeleted = await this.model.findByPk(orderId, {
         include: {
-          association: "products",
+          association: 'products',
         },
       });
 
@@ -202,7 +161,7 @@ class OrdersController extends BaseController {
 
       console.log(orderToBeDeleted);
 
-      res.status(200).send("Success");
+      res.status(200).send('Success');
     } catch (error) {
       console.error(error);
       res.status(400).send({ error: true, msg: error });
