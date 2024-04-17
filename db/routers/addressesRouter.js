@@ -1,4 +1,4 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
 class AddressesRouter {
@@ -7,13 +7,17 @@ class AddressesRouter {
   }
 
   routes() {
-    router.get('/', this.controller.getAllAddresses.bind(this.controller));
-    router.post('/', this.controller.postNewAddress.bind(this.controller));
+    router.get("/", this.controller.getAllAddresses.bind(this.controller));
+    router.post("/", this.controller.postNewAddress.bind(this.controller));
     router.get(
-      '/get-address-id',
-      this.controller.getAddressIdBasedOnActualAddress.bind(this.controller),
+      "/get-address-id",
+      this.controller.getAddressIdBasedOnActualAddress.bind(this.controller)
     );
-    router.get('/:addressId', this.controller.getAddress.bind(this.controller));
+    router.get("/:addressId", this.controller.getAddress.bind(this.controller));
+    router.delete(
+      "/:addressId",
+      this.controller.deleteOne.bind(this.controller)
+    );
     return router;
   }
 }
