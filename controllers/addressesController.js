@@ -1,5 +1,5 @@
-const BaseController = require('./baseController');
-const { DataTypes, QueryTypes } = require('sequelize'); // Import DataTypes and QueryTypes
+const BaseController = require("./baseController");
+const { DataTypes, QueryTypes } = require("sequelize"); // Import DataTypes and QueryTypes
 
 class AddressesController extends BaseController {
   constructor(model, userModel) {
@@ -12,12 +12,10 @@ class AddressesController extends BaseController {
       const address = await this.model.sequelize.query(
         `SELECT "id", "buyer_id", "address", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "buyer_id" AS "user_id" FROM "addresses"`,
         {
-          // replacements: { addressId },
           type: this.model.sequelize.QueryTypes.SELECT,
-        },
+        }
       );
 
-      // console.log(address.map((singleAddress) => singleAddress.address));
       return res.json(address); // Assuming you expect only one address
     } catch (err) {
       console.error(err);
@@ -34,7 +32,7 @@ class AddressesController extends BaseController {
         {
           replacements: { addressId },
           type: this.model.sequelize.QueryTypes.SELECT,
-        },
+        }
       );
       return res.json(address[0]); // Assuming you expect only one address
     } catch (err) {
@@ -53,8 +51,6 @@ class AddressesController extends BaseController {
         },
       });
 
-      console.log(address.dataValues);
-
       return res.status(200).json(address.id);
     } catch (err) {
       console.error(err);
@@ -70,17 +66,12 @@ class AddressesController extends BaseController {
       {
         // replacements: { addressId },
         type: this.model.sequelize.QueryTypes.SELECT,
-      },
+      }
     );
 
     const arrayOfAddresses = allAddresses.map(
-      (singleAddress) => singleAddress.address,
+      (singleAddress) => singleAddress.address
     );
-
-    console.log(arrayOfAddresses);
-    console.log(email);
-
-    console.log(arrayOfAddresses.includes(address));
 
     if (!arrayOfAddresses.includes(address)) {
       try {
@@ -89,15 +80,13 @@ class AddressesController extends BaseController {
           where: { email: email },
         });
 
-        console.log(buyer.dataValues.id === null);
-
         // Create a new address associated with the buyer
         const queryResult = await this.model.sequelize.query(
           'INSERT INTO "addresses" ("buyer_id", "address", "created_at", "updated_at") VALUES ($1, $2, $3, $4) RETURNING "id", "buyer_id", "address", "created_at", "updated_at"',
           {
             bind: [buyer.id, address, new Date(), new Date()],
             type: QueryTypes.INSERT,
-          },
+          }
         );
 
         const newAddress = queryResult[0];
@@ -108,7 +97,24 @@ class AddressesController extends BaseController {
         return res.status(400).json({ error: true, msg: err.message });
       }
     } else {
-      return res.send('Address already exists!');
+      return res.send("Address already exists!");
+    }
+  }
+
+  async deleteOne(req, res) {
+    const { addressId } = req.params;
+
+    try {
+      const addressToBeDeleted = await this.model.destroy({
+        where: {
+          id: addressId,
+        },
+      });
+
+      res.status(200).send("Success");
+    } catch (error) {
+      console.error(error);
+      res.status(400).send({ error: true, msg: error });
     }
   }
 }
