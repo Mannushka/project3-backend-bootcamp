@@ -72,5 +72,22 @@ class UsersController extends BaseController {
       return res.status(400).json({ error: true, msg: err.message });
     }
   }
+
+  async deleteOne(req, res) {
+    const { userId } = req.params;
+
+    try {
+      const userToBeDeleted = await this.model.destroy({
+        where: {
+          id: userId,
+        },
+      });
+
+      res.status(200).send("Success");
+    } catch (error) {
+      console.error(error);
+      res.status(400).send({ error: true, msg: error });
+    }
+  }
 }
 module.exports = UsersController;
