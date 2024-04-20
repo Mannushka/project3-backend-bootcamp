@@ -1,5 +1,5 @@
-const BaseController = require("./baseController");
-const { DataTypes, QueryTypes } = require("sequelize"); // Import DataTypes and QueryTypes
+const BaseController = require('./baseController');
+const { QueryTypes } = require('sequelize'); // Import DataTypes and QueryTypes
 
 class AddressesController extends BaseController {
   constructor(model, userModel) {
@@ -13,7 +13,7 @@ class AddressesController extends BaseController {
         `SELECT "id", "buyer_id", "address", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "buyer_id" AS "user_id" FROM "addresses"`,
         {
           type: this.model.sequelize.QueryTypes.SELECT,
-        }
+        },
       );
 
       return res.json(address); // Assuming you expect only one address
@@ -32,7 +32,7 @@ class AddressesController extends BaseController {
         {
           replacements: { addressId },
           type: this.model.sequelize.QueryTypes.SELECT,
-        }
+        },
       );
       return res.json(address[0]); // Assuming you expect only one address
     } catch (err) {
@@ -65,11 +65,11 @@ class AddressesController extends BaseController {
       `SELECT "id", "buyer_id", "address", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "buyer_id" AS "user_id" FROM "addresses"`,
       {
         type: this.model.sequelize.QueryTypes.SELECT,
-      }
+      },
     );
 
     const arrayOfAddresses = allAddresses.map(
-      (singleAddress) => singleAddress.address
+      (singleAddress) => singleAddress.address,
     );
 
     if (!arrayOfAddresses.includes(address)) {
@@ -83,7 +83,7 @@ class AddressesController extends BaseController {
           {
             bind: [buyer.id, address, new Date(), new Date()],
             type: QueryTypes.INSERT,
-          }
+          },
         );
 
         const newAddress = queryResult[0];
@@ -94,7 +94,7 @@ class AddressesController extends BaseController {
         return res.status(400).json({ error: true, msg: err.message });
       }
     } else {
-      return res.send("Address already exists!");
+      return res.send('Address already exists!');
     }
   }
 
@@ -102,13 +102,13 @@ class AddressesController extends BaseController {
     const { addressId } = req.params;
 
     try {
-      const addressToBeDeleted = await this.model.destroy({
+      await this.model.destroy({
         where: {
           id: addressId,
         },
       });
 
-      res.status(200).send("Success");
+      res.status(200).send(`Successfully deleted address at id ${addressId}`);
     } catch (error) {
       console.error(error);
       res.status(400).send({ error: true, msg: error });

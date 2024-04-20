@@ -1,9 +1,8 @@
-const BaseController = require("./baseController");
-const Mailjet = require("node-mailjet");
-require("dotenv").config();
+const BaseController = require('./baseController');
+const Mailjet = require('node-mailjet');
+require('dotenv').config();
 
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
-const YOUR_DOMAIN = "http://localhost:3000";
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 
 // Mailjet Configuration
 const mailjet = Mailjet.apiConnect(
@@ -12,7 +11,7 @@ const mailjet = Mailjet.apiConnect(
   {
     config: {},
     options: {},
-  }
+  },
 );
 
 class ProductsController extends BaseController {
@@ -51,7 +50,7 @@ class ProductsController extends BaseController {
     try {
       const product = await this.model.findByPk(productId, {
         include: {
-          association: "orders",
+          association: 'orders',
         },
       });
 
@@ -109,27 +108,27 @@ class ProductsController extends BaseController {
     try {
       const product = stripe.products
         .create({
-          name: "Starter Subscription",
-          description: "$12/Month subscription",
+          name: 'Starter Subscription',
+          description: '$12/Month subscription',
         })
         .then((product) => {
           stripe.prices
             .create({
               unit_amount: 1200,
-              currency: "usd",
+              currency: 'usd',
               recurring: {
-                interval: "month",
+                interval: 'month',
               },
               product: product.id,
             })
             .then((price) => {
               console.log(
-                "Success! Here is your starter subscription product id: " +
-                  product.id
+                'Success! Here is your starter subscription product id: ' +
+                  product.id,
               );
               console.log(
-                "Success! Here is your starter subscription price id: " +
-                  price.id
+                'Success! Here is your starter subscription price id: ' +
+                  price.id,
               );
             });
         });
@@ -155,7 +154,7 @@ class ProductsController extends BaseController {
         formattedOutput.map(async (product) => {
           const productPrice = product.price;
           try {
-            const createdProduct = await stripe.products
+            await stripe.products
               .create({
                 name: product.title,
                 description: product.description,
@@ -163,17 +162,17 @@ class ProductsController extends BaseController {
               .then((product) => {
                 stripe.prices.create({
                   unit_amount: productPrice,
-                  currency: "sgd",
+                  currency: 'sgd',
                   product: product.id,
                 });
               })
               .then((response) => {
-                console.log("Success! Here are the product details:", response);
+                console.log('Success! Here are the product details:', response);
               });
           } catch (err) {
             console.error(`Error creating product in Stripe`, err);
           }
-        })
+        }),
       );
 
       return res.json(products);
@@ -192,7 +191,7 @@ class ProductsController extends BaseController {
         formattedOutput.map(async (product) => {
           const productPrice = product.price;
           try {
-            const createdProduct = await stripe.products
+            await stripe.products
               .create({
                 name: product.title,
                 description: product.description,
@@ -200,17 +199,17 @@ class ProductsController extends BaseController {
               .then((product) => {
                 stripe.prices.create({
                   unit_amount: productPrice,
-                  currency: "sgd",
+                  currency: 'sgd',
                   product: product.id,
                 });
               })
               .then((response) => {
-                console.log("Success! Here are the product details:", response);
+                console.log('Success! Here are the product details:', response);
               });
           } catch (err) {
             console.error(`Error creating product in Stripe`, err);
           }
-        })
+        }),
       );
 
       return res.json(output);
@@ -224,7 +223,7 @@ class ProductsController extends BaseController {
       req.body;
 
     if (itemNames) {
-      var itemList = itemNames.map((item) => `<li>${item}</li>`).join("");
+      var itemList = itemNames.map((item) => `<li>${item}</li>`).join('');
     }
 
     try {
@@ -233,24 +232,24 @@ class ProductsController extends BaseController {
           price: `${priceId.priceId}`,
           quantity: priceId.quantity,
         })),
-        mode: "payment",
+        mode: 'payment',
         success_url: `http://localhost:5173/order/success`,
         cancel_url: `http://localhost:5173/checkout`,
       });
 
       res.json({ url: session.url });
     } catch (err) {
-      res.status(500).json({ error: "Error creaing checkout session" });
+      res.status(500).json({ error: 'Error creaing checkout session' });
     }
 
     // Sending email to customer
     try {
-      const request = mailjet.post("send", { version: "v3.1" }).request({
+      const request = mailjet.post('send', { version: 'v3.1' }).request({
         Messages: [
           {
             From: {
-              Email: "ianchow9898@gmail.com",
-              Name: "Techie E-Store",
+              Email: 'ianchow9898@gmail.com',
+              Name: 'Techie E-Store',
             },
             To: [
               {
@@ -258,9 +257,9 @@ class ProductsController extends BaseController {
                 Name: userFirstName,
               },
             ],
-            Subject: "Thank you for purchasing from Techie E-Store",
+            Subject: 'Thank you for purchasing from Techie E-Store',
             TextPart:
-              "Dear Ian, welcome to Techie E-store! May the technological force be with you!",
+              'Dear Ian, welcome to Techie E-store! May the technological force be with you!',
             HTMLPart: `<h3>Dear ${userFirstName} ${userLastName}, Thank you for purchasing from <a href="https://www.mailjet.com/">Techie E-store</a>!</h3> <p>Here are the items you purchased:</p>
                       <ul>
                        ${itemList}
@@ -272,39 +271,14 @@ class ProductsController extends BaseController {
       });
 
       request
-        .then((result) => {
-          console.log(result);
+        .then((response) => {
+          console.log('Success in sending email: ', response);
         })
         .catch((err) => {
-          console.log(err.statusCode);
+          console.log(err);
         });
     } catch (err) {
       return res.status(400).json({ error: true, msg: err });
-    }
-  }
-
-  async makePayment(req, res) {
-    const { priceId, delivery_address } = req.body;
-
-    try {
-      const session = await stripe.checkout.sessions.create({
-        line_items: [
-          {
-            // Provide the exact Price ID (for example, pr_1234) of the product you want to sell
-            price: `${priceId}`,
-            quantity: 1,
-          },
-        ],
-        mode: "payment",
-        success_url: `http://localhost:5173/order/success`,
-
-        cancel_url: `http://localhost:5173/checkout`,
-      });
-
-      // Had to return the session URL as JSON for the front end to redirect to instead of directly redirecting due to CORS issues
-      res.json({ url: session.url });
-    } catch (err) {
-      res.status(500).json({ error: "Error creaing checkout session" });
     }
   }
 
@@ -312,10 +286,6 @@ class ProductsController extends BaseController {
     try {
       const prices = await stripe.prices.list();
       const pricesData = prices.data;
-
-      // Update all the products in db with a new column stripe_price_id
-      const allProducts = await this.model.findAll();
-      const allProductsData = allProducts.map((product) => product.dataValues);
 
       return res.send(pricesData);
     } catch (err) {
@@ -326,22 +296,22 @@ class ProductsController extends BaseController {
 
   async sendMailToCustomer(req, res) {
     try {
-      const request = mailjet.post("send", { version: "v3.1" }).request({
+      const request = mailjet.post('send', { version: 'v3.1' }).request({
         Messages: [
           {
             From: {
-              Email: "ianchow9898@gmail.com",
-              Name: "Mailjet Pilot",
+              Email: 'ianchow9898@gmail.com',
+              Name: 'Mailjet Pilot',
             },
             To: [
               {
-                Email: "ianchow989898@gmail.com",
-                Name: "passenger 1",
+                Email: 'ianchow989898@gmail.com',
+                Name: 'passenger 1',
               },
             ],
-            Subject: "Your email flight plan!",
+            Subject: 'Your email flight plan!',
             TextPart:
-              "Dear Ian, welcome to Mailjet! May the delivery force be with you!",
+              'Dear Ian, welcome to Mailjet! May the delivery force be with you!',
             HTMLPart:
               '<h3>Dear Ian, welcome to <a href="https://www.mailjet.com/">Mailjet</a>!</h3><br />May the delivery force be with you!',
           },

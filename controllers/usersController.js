@@ -1,8 +1,7 @@
-const BaseController = require("./baseController");
-require("dotenv").config();
+const BaseController = require('./baseController');
+require('dotenv').config();
 
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY);
-const YOUR_DOMAIN = "http://localhost:3000";
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
 
 class UsersController extends BaseController {
   constructor(model) {
@@ -62,7 +61,7 @@ class UsersController extends BaseController {
   async getStripeCustomerDetails(req, res) {
     try {
       const session = await stripe.checkout.sessions.retrieve(
-        req.query.session_id
+        req.query.session_id,
       );
 
       const customer = await stripe.customers.retrieve(session.customer);
@@ -77,13 +76,13 @@ class UsersController extends BaseController {
     const { userId } = req.params;
 
     try {
-      const userToBeDeleted = await this.model.destroy({
+      await this.model.destroy({
         where: {
           id: userId,
         },
       });
 
-      res.status(200).send("Success");
+      res.status(200).send(`Successfully deleted user at user id: ${userId}`);
     } catch (error) {
       console.error(error);
       res.status(400).send({ error: true, msg: error });
