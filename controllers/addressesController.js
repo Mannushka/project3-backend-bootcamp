@@ -64,7 +64,6 @@ class AddressesController extends BaseController {
     const allAddresses = await this.model.sequelize.query(
       `SELECT "id", "buyer_id", "address", "created_at" AS "createdAt", "updated_at" AS "updatedAt", "buyer_id" AS "user_id" FROM "addresses"`,
       {
-        // replacements: { addressId },
         type: this.model.sequelize.QueryTypes.SELECT,
       }
     );
@@ -75,12 +74,10 @@ class AddressesController extends BaseController {
 
     if (!arrayOfAddresses.includes(address)) {
       try {
-        // Find or create the buyer
         const [buyer] = await this.userModel.findOrCreate({
           where: { email: email },
         });
 
-        // Create a new address associated with the buyer
         const queryResult = await this.model.sequelize.query(
           'INSERT INTO "addresses" ("buyer_id", "address", "created_at", "updated_at") VALUES ($1, $2, $3, $4) RETURNING "id", "buyer_id", "address", "created_at", "updated_at"',
           {

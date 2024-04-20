@@ -11,11 +11,11 @@ const checkJwt = auth({
 });
 
 // import Routers
-const ProductsRouter = require("./db/routers/productsRouter");
-const OrdersRouter = require("./db/routers/ordersRouter");
-const CategoriesRouter = require("./db/routers/categoriesRouter");
-const UsersRouter = require("./db/routers/usersRouter");
-const AddressesRouter = require("./db/routers/addressesRouter");
+const ProductsRouter = require("./routers/productsRouter");
+const OrdersRouter = require("./routers/ordersRouter");
+const CategoriesRouter = require("./routers/categoriesRouter");
+const UsersRouter = require("./routers/usersRouter");
+const AddressesRouter = require("./routers/addressesRouter");
 
 // import Controllers
 const ProductsController = require("./controllers/productsController");
