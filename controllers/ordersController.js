@@ -126,13 +126,11 @@ class OrdersController extends BaseController {
     const { orderId } = req.params;
 
     try {
-      const orderToBeDeleted = await this.model.destroy({
+      await this.model.destroy({
         where: {
           id: orderId,
         },
       });
-
-      console.log(orderToBeDeleted);
 
       res.status(200).send('Success:');
     } catch (error) {
