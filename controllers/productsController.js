@@ -35,7 +35,7 @@ class ProductsController extends BaseController {
           where: { category_id: categoryId },
         });
       } else {
-        products = await this.model.findAll(); // Fetch all products
+        products = await this.model.findAll();
       }
 
       return res.json(products);
@@ -44,7 +44,7 @@ class ProductsController extends BaseController {
       return res.status(400).json({ error: true, msg: err });
     }
   }
-  // Retrieve specific product
+
   async getOne(req, res) {
     const { productId } = req.params;
 
@@ -61,7 +61,6 @@ class ProductsController extends BaseController {
     }
   }
 
-  // Update the specific product to reduce stock by number of quantity
   async updateOne(req, res) {
     const { productId } = req.params;
 
@@ -71,7 +70,6 @@ class ProductsController extends BaseController {
 
     const { title, price, description } = productToBeBought.dataValues;
 
-    // purchasedProduct TO BE INSERTED INTO CART
     const purchasedProduct = {
       title: title,
       price: price,
@@ -88,19 +86,15 @@ class ProductsController extends BaseController {
     res.send(purchasedProduct);
   }
 
-  // Post a new product for sellers
   async postOne(req, res) {
     const { title, price, description, stock_left, img, categoryId } = req.body;
 
     try {
-      // Create new product
       const newProduct = await this.model.create({
         title: title,
         price: price,
         description: description,
-        // shipping_details: shipping_details,
         stock_left: stock_left,
-        // model_url: model_url,
         img: img,
         categoryId: categoryId,
       });
@@ -303,24 +297,12 @@ class ProductsController extends BaseController {
         ],
         mode: "payment",
         success_url: `http://localhost:5173/order/success`,
-        // cancel_url: `${YOUR_DOMAIN}?canceled=true`,
+
         cancel_url: `http://localhost:5173/checkout`,
       });
 
-      // res.redirect(303, session.url);
-
       // Had to return the session URL as JSON for the front end to redirect to instead of directly redirecting due to CORS issues
       res.json({ url: session.url });
-
-      // Post orders after payment success
-      // if (session.success_url === 'http://localhost:5173/order/success') {
-
-      //   // Create order row and order_products row here!
-      //   const newOrder = await this.ordersModel.create({
-      //     delivery_address: delivery_address,
-
-      //   });
-      // }
     } catch (err) {
       res.status(500).json({ error: "Error creaing checkout session" });
     }
