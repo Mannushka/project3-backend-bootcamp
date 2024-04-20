@@ -1,7 +1,5 @@
-const { where } = require("sequelize");
 const BaseController = require("./baseController");
 const Sequelize = require("sequelize");
-// const sequelize = new Sequelize("postgres://mz:@127.0.0.1:5432/tech_store_app");
 const sequelize = new Sequelize(
   `postgres://${process.env.DB_USERNAME}:@${process.env.DB_HOST}:5432/${process.env.DB_NAME}`
 );
@@ -43,17 +41,14 @@ class OrdersController extends BaseController {
   }
 
   async postOne(req, res) {
-    // products is an array of objects where key = product_id, value = quantity in cart
     const { address_id, user_id, total_price, products } = req.body;
 
-    // Check if there are products
     if (!products || products.length === 0) {
       return res
         .status(400)
         .json({ error: true, msg: "No products in the order" });
     }
 
-    //implement transaction
     try {
       const result = await sequelize.transaction(async (t) => {
         const newOrder = await this.model.create(
@@ -65,7 +60,6 @@ class OrdersController extends BaseController {
           { transaction: t }
         );
 
-        // Insert a new row in the junction table, order_products
         const arrayOfJunctionTableEntries = [];
         for (let i = 0; i < products.length; i++) {
           const productObj = products[i];
@@ -81,7 +75,6 @@ class OrdersController extends BaseController {
           arrayOfJunctionTableEntries.push(newEntryInOrderProducts);
         }
 
-        //update product stock
         const purchasedProducts = [];
 
         for (let i = 0; i < products.length; i++) {
